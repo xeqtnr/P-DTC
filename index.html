@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Haulotte PULSAR DTC — Program Cockpit & Roadmap</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23FFC20E'/><text y='70' font-size='60' font-weight='bold' x='15' fill='%231E293B'>H</text></svg>">
+</head>
+<body>
+
+  <!-- Top Application Header -->
+  <header class="app-header">
+    <div class="header-top">
+      <div class="brand-section">
+        <div class="brand-logo-mark">
+          <span>HAULOTTE</span>
+        </div>
+        <div class="brand-title">
+          <h1>PULSAR DTC Program Cockpit</h1>
+          <span>Serial Life · A Higher Standard · Less Diversity, More Value</span>
+        </div>
+      </div>
+
+      <div class="header-meta">
+        <div class="meta-badge" id="as-of-badge" title="Project evaluation date">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span>As-of: <strong>2026-09-28</strong></span>
+        </div>
+
+        <div class="meta-badge environment-local" id="env-badge" style="cursor:pointer;" onclick="app.openProfileModal()" title="Click to change user or toggle shared mode">
+          <span class="dot"></span> <span id="user-profile-badge">Local Mode (Browser Persistent)</span>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn btn-secondary btn-sm" onclick="app.showOperatingGuide()" title="How to use the cockpit for weekly reviews">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            Operating Guide
+          </button>
+
+          <button class="btn btn-primary btn-sm" onclick="app.saveWeeklySnapshot()" title="Save current state and review weekly progress comparison">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            Save Weekly Snapshot
+          </button>
+
+          <div style="position:relative; display:inline-block;">
+            <button class="btn btn-secondary btn-sm" onclick="document.getElementById('export-menu').classList.toggle('show')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Export ▼
+            </button>
+            <div id="export-menu" class="modal-window" style="display:none; position:absolute; right:0; top:36px; width:220px; z-index:1100; box-shadow:var(--shadow-lg); padding:8px;">
+              <button class="btn btn-secondary btn-sm" style="width:100%; justify-content:flex-start; margin-bottom:4px;" onclick="app.exportCSV('roadmap'); document.getElementById('export-menu').classList.remove('show');">Export Roadmap (.CSV)</button>
+              <button class="btn btn-secondary btn-sm" style="width:100%; justify-content:flex-start; margin-bottom:4px;" onclick="app.exportCSV('purchasing'); document.getElementById('export-menu').classList.remove('show');">Export Purchasing (.CSV)</button>
+              <button class="btn btn-secondary btn-sm" style="width:100%; justify-content:flex-start; margin-bottom:4px;" onclick="app.exportCSV('raid'); document.getElementById('export-menu').classList.remove('show');">Export RAID (.CSV)</button>
+              <hr style="margin:6px 0; border:0; border-top:1px solid var(--charcoal-200);">
+              <button class="btn btn-secondary btn-sm" style="width:100%; justify-content:flex-start; margin-bottom:4px;" onclick="app.exportJSONBackup(); document.getElementById('export-menu').classList.remove('show');">Export Full Backup (.JSON)</button>
+              <button class="btn btn-danger btn-sm" style="width:100%; justify-content:flex-start;" onclick="app.resetData(); document.getElementById('export-menu').classList.remove('show');">Reset Baseline Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="header-nav">
+      <ul class="nav-tabs">
+        <li>
+          <button class="nav-tab-btn active" data-tab="dashboard">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            Dashboard
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="roadmap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+            Roadmap
+            <span class="nav-tab-badge" id="badge-count-roadmap">6 Lanes</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="purchasing">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            Purchasing
+            <span class="nav-tab-badge" id="badge-count-purchasing">16 Parts</span>
+          </button>
+        </li>
+        <li>
+          <button class="nav-tab-btn" data-tab="raid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            RAID & Decisions
+            <span class="nav-tab-badge" id="badge-count-raid">13 Items</span>
+          </button>
+        </li>
+      </ul>
+
+      <div class="quick-tools">
+        <span style="font-size:12px; color:var(--charcoal-500);">Mon–Fri Working Calendar Active</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-main">
+
+    <!-- CPM Incomplete Warning Banner (Conditionally displayed) -->
+    <div id="cpm-alert-banner" class="alert-banner alert-warning" style="display:none;"></div>
+
+    <!-- =====================================================================
+         PAGE 1: DASHBOARD
+         ===================================================================== -->
+    <section id="page-dashboard" class="page-section active">
+      
+      <!-- Independent Serial TR Endpoint Delivery Cards -->
+      <div class="dashboard-hero-grid">
+        <div id="mainstream-endpoint-card" class="delivery-endpoint-card"></div>
+        <div id="steering-endpoint-card" class="delivery-endpoint-card"></div>
+      </div>
+
+      <!-- 4 Quick Answer KPI Cards -->
+      <div class="kpi-row">
+        <div class="kpi-card" id="kpi-critical-acts">
+          <div class="kpi-title">
+            <span>What Controls Delivery?</span>
+            <span class="badge badge-critical">Critical Path</span>
+          </div>
+          <div class="kpi-number">0</div>
+          <div class="kpi-meta">Zero-float activities</div>
+        </div>
+
+        <div class="kpi-card" id="kpi-late-blocked">
+          <div class="kpi-title">
+            <span>What Needs Attention?</span>
+            <span class="badge badge-red">Alerts</span>
+          </div>
+          <div class="kpi-number">0</div>
+          <div class="kpi-meta">Late or blocked tasks</div>
+        </div>
+
+        <div class="kpi-card" id="kpi-purchasing-alerts">
+          <div class="kpi-title">
+            <span>Purchasing Readiness</span>
+            <span class="badge badge-amber">Procurement</span>
+          </div>
+          <div class="kpi-number">0</div>
+          <div class="kpi-meta">Overdue or unconfirmed</div>
+        </div>
+
+        <div class="kpi-card" id="kpi-open-decisions">
+          <div class="kpi-title">
+            <span>Decisions Awaiting Action</span>
+            <span class="badge badge-blue">R&D Decisions</span>
+          </div>
+          <div class="kpi-number">0</div>
+          <div class="kpi-meta">Carry-over / compatibility</div>
+        </div>
+      </div>
+
+      <!-- Dashboard Columns: Progress by Lane + Next Milestones & Critical Tasks -->
+      <div class="dashboard-columns">
+        <div class="panel-card">
+          <div class="panel-header">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+              Where Are We Today? — Progress by Lane & Reporting Coverage
+            </h3>
+            <span style="font-size:12px; color:var(--charcoal-500);">Target Savings: <strong>€608,380 / yr</strong></span>
+          </div>
+          <div id="lane-progress-list" class="lane-progress-list"></div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                Next Major Program Milestones
+              </h3>
+            </div>
+            <div id="dashboard-next-milestones" class="attention-list"></div>
+          </div>
+
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Current Critical Activities (Zero Float)
+              </h3>
+            </div>
+            <div id="dashboard-critical-activities" class="attention-list"></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =====================================================================
+         PAGE 2: ROADMAP
+         ===================================================================== -->
+    <section id="page-roadmap" class="page-section">
+      <div class="page-header-row">
+        <div class="page-title">
+          <h2>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+            Integrated Program Roadmap (6 Lanes)
+          </h2>
+          <div class="page-subtitle">One shared schedule across Mainstream & Steering. Narrow and Wide integrated into physical assembly flow.</div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button id="btn-zoom-week" class="btn btn-sm btn-primary">Week View</button>
+          <button id="btn-zoom-month" class="btn btn-sm btn-secondary">Month View</button>
+        </div>
+      </div>
+
+      <!-- 5 Milestone Stages Banner -->
+      <div id="milestone-stages-banner" class="milestone-stages-banner"></div>
+
+      <!-- Roadmap Filtering Toolbar -->
+      <div class="roadmap-toolbar">
+        <div class="filter-group">
+          <input type="text" id="search-roadmap" class="search-input" placeholder="Search activity, ID, initiative...">
+          
+          <select id="filter-roadmap-lane" class="filter-select">
+            <option value="all">All 6 Lanes</option>
+            <option value="routing">Routing (INI-110093)</option>
+            <option value="platform">Platform (INI-108827)</option>
+            <option value="steering">Steering (INI-109505)</option>
+            <option value="inverter">CAN 2 Inverter / UCB XS (INI-109883)</option>
+            <option value="testing">Test & Validation</option>
+            <option value="purchasing">TPM / Purchasing</option>
+          </select>
+
+          <select id="filter-roadmap-stream" class="filter-select">
+            <option value="all">All Streams</option>
+            <option value="Mainstream">Mainstream</option>
+            <option value="Steering">Steering</option>
+          </select>
+
+          <select id="filter-roadmap-owner" class="filter-select">
+            <option value="all">All Owners</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label style="font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; cursor:pointer;">
+            <input type="checkbox" id="chk-critical-only" onchange="app.filterCriticalOnly(this.checked)">
+            Critical Path Only
+          </label>
+          <label style="font-size:12px; font-weight:600; display:flex; align-items:center; gap:6px; cursor:pointer; margin-left:10px;">
+            <input type="checkbox" id="chk-blocked-only" onchange="app.filterBlockedOnly(this.checked)">
+            Blocked Only
+          </label>
+          <button class="btn btn-sm btn-primary" onclick="app.openAddActivityModal()" style="margin-left:12px;">
+            + Add Activity
+          </button>
+        </div>
+      </div>
+
+      <!-- Interactive Gantt Board -->
+      <div id="gantt-board-wrapper" class="gantt-board-wrapper"></div>
+    </section>
+
+    <!-- =====================================================================
+         PAGE 3: PURCHASING
+         ===================================================================== -->
+    <section id="page-purchasing" class="page-section">
+      <div class="page-header-row">
+        <div class="page-title">
+          <h2>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            Purchasing & Prototype Availability
+          </h2>
+          <div class="page-subtitle">Tracks all 16 prototype sets. Expected availability feeds roadmap gates directly.</div>
+        </div>
+
+        <div class="filter-group">
+          <input type="text" id="search-purchasing" class="search-input" placeholder="Search part, supplier, PO ref...">
+          <select id="filter-purchasing-status" class="filter-select">
+            <option value="all">All Statuses</option>
+            <option value="To confirm">To confirm</option>
+            <option value="Ready to order">Ready to order</option>
+            <option value="Ordered">Ordered</option>
+            <option value="Part received">Part received</option>
+            <option value="Received">Received</option>
+            <option value="On hold">On hold</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Prototype / Part & Variant</th>
+              <th>Supplier & Owner</th>
+              <th>PO Reference</th>
+              <th>Status / Sourcing</th>
+              <th>Order Placed</th>
+              <th>Expected Delivery</th>
+              <th>Received Date</th>
+              <th style="text-align:center;">Accepted for Test</th>
+              <th>Short Issue / Next Action</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="purchasing-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         PAGE 4: RAID & DECISIONS
+         ===================================================================== -->
+    <section id="page-raid" class="page-section">
+      <div class="page-header-row">
+        <div class="page-title">
+          <h2>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            R&D Risks, Assumptions, Issues & Decisions (RAID)
+          </h2>
+          <div class="page-subtitle">Preserves PPTX 5×5 Probability/Impact ratings and technical decisions (cylinder/hoses carry-over & compatibility).</div>
+        </div>
+
+        <div class="filter-group">
+          <input type="text" id="search-raid" class="search-input" placeholder="Search risk, decision, owner...">
+        </div>
+      </div>
+
+      <div class="raid-tabs-row">
+        <button class="raid-filter-btn active" data-type="all">All Items (13)</button>
+        <button class="raid-filter-btn" data-type="Risk">Risks Only (6)</button>
+        <button class="raid-filter-btn" data-type="Decision">Decisions Only (7)</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID & Type</th>
+              <th>Lane / Scope</th>
+              <th>Description & Consequence</th>
+              <th>Owner</th>
+              <th>Action or Decision Needed</th>
+              <th>Due Date</th>
+              <th>Status</th>
+              <th>Score / Outcome</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="raid-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       MODALS & EDITING PANELS
+       ===================================================================== -->
+
+  <!-- 1. Edit Activity Modal -->
+  <div id="modal-edit-activity" class="modal-backdrop">
+    <div class="modal-window modal-lg">
+      <div class="modal-header">
+        <h3>Edit Activity & Prerequisites</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('modal-edit-activity')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-act-id">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="edit-act-title" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label>Initiative Reference</label>
+            <input type="text" id="edit-act-initiative" class="form-input" placeholder="e.g. INI-109883">
+          </div>
+        </div>
+
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Lane</label>
+            <select id="edit-act-lane" class="form-select">
+              <option value="routing">Routing</option>
+              <option value="platform">Platform</option>
+              <option value="steering">Steering</option>
+              <option value="inverter">CAN 2 Inverter / UCB XS</option>
+              <option value="testing">Test & Validation</option>
+              <option value="purchasing">TPM / Purchasing</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Owner</label>
+            <input type="text" id="edit-act-owner" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Progress (0–100%) <small style="color:var(--charcoal-500)">(blank if unknown)</small></label>
+            <input type="number" id="edit-act-progress" class="form-input" min="0" max="100" placeholder="e.g. 50">
+          </div>
+        </div>
+
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="edit-act-start" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Expected Finish Date</label>
+            <input type="date" id="edit-act-finish" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Duration (Working Days)</label>
+            <input type="number" id="edit-act-duration" class="form-input" min="1">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Remaining Working Days (editable)</label>
+            <input type="number" id="edit-act-remaining" class="form-input" placeholder="Prefilled from finish date">
+          </div>
+          <div class="form-group">
+            <label>Completion Date (if 100%)</label>
+            <input type="date" id="edit-act-completed-date" class="form-input" placeholder="Auto-recorded when 100%">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="edit-act-blocked" class="custom-checkbox">
+            <span style="font-weight:700; color:var(--status-red);">Mark as Blocked</span>
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label>Next-Action Note</label>
+          <textarea id="edit-act-nextaction" class="form-textarea" placeholder="Short next-action note or blocker description..."></textarea>
+        </div>
+
+        <!-- Predecessors ("Must follow" selector with cycle prevention) -->
+        <div class="form-group">
+          <label>“Must Follow” Prerequisites (Finish-to-Start handoffs only)</label>
+          <div id="edit-act-predecessors-container" style="max-height:140px; overflow-y:auto; border:1px solid var(--charcoal-200); border-radius:var(--border-radius); padding:8px; background:var(--white);"></div>
+          <span class="form-help">Only real prerequisites permitted. Circular links are automatically disabled.</span>
+        </div>
+
+        <!-- Short Checklist -->
+        <div class="form-group">
+          <label>Internal Activity Checklist</label>
+          <div class="checklist-builder">
+            <div id="edit-act-checklist-items" class="checklist-items-list"></div>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="edit-act-new-check" class="form-input" placeholder="Add checklist step (e.g. Narrow chassis clamp inspection)..." style="flex-grow:1;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="app.addChecklistItem()">+ Add Item</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live CPM Impact Preview -->
+        <div id="edit-act-impact-preview" class="impact-preview-callout normal"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-edit-activity')">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveActivityModal()">Save Activity Updates</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Edit Prototype Modal -->
+  <div id="modal-edit-prototype" class="modal-backdrop">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>Edit Prototype Procurement Record</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('modal-edit-prototype')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-proto-id">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Part Name</label>
+            <input type="text" id="edit-proto-partname" class="form-input" readonly>
+          </div>
+          <div class="form-group">
+            <label>Variant</label>
+            <input type="text" id="edit-proto-variant" class="form-input" readonly>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Supplier</label>
+            <input type="text" id="edit-proto-supplier" class="form-input" placeholder="Supplier name">
+          </div>
+          <div class="form-group">
+            <label>Owner</label>
+            <input type="text" id="edit-proto-owner" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>PO Reference</label>
+            <input type="text" id="edit-proto-poref" class="form-input" placeholder="e.g. PO-2026-9883">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="edit-proto-status" class="form-select">
+              <option value="To confirm">To confirm</option>
+              <option value="Ready to order">Ready to order</option>
+              <option value="Ordered">Ordered</option>
+              <option value="Part received">Part received</option>
+              <option value="Received">Received</option>
+              <option value="On hold">On hold</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Order Placed Date</label>
+            <input type="date" id="edit-proto-orderdate" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Expected Delivery Date</label>
+            <input type="date" id="edit-proto-deliverydate" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Date Confidence</label>
+            <select id="edit-proto-datetype" class="form-select">
+              <option value="Estimated">Estimated</option>
+              <option value="Supplier confirmed">Supplier confirmed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Received Date</label>
+            <input type="date" id="edit-proto-receiveddate" class="form-input">
+          </div>
+          <div class="form-group" style="justify-content:center;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-top:16px;">
+              <input type="checkbox" id="edit-proto-accepted" class="custom-checkbox">
+              <span style="font-weight:700;">Accepted for assembly/test</span>
+            </label>
+            <span class="form-help">Separate from physical delivery receipt. Required to pass gate.</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Short Issue / Next-Action Note</label>
+          <textarea id="edit-proto-issuenote" class="form-textarea" placeholder="Notes on supplier discussion, delays or quality inspection..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-edit-prototype')">Cancel</button>
+        <button class="btn btn-primary" onclick="app.savePrototypeModal()">Save Purchasing Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Edit RAID & Decisions Modal -->
+  <div id="modal-edit-raid" class="modal-backdrop">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>Edit R&D Item / Decision</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('modal-edit-raid')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-raid-id">
+        <input type="hidden" id="edit-raid-type">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Initiative / Lane</label>
+            <input type="text" id="edit-raid-lane" class="form-input" readonly>
+          </div>
+          <div class="form-group">
+            <label>Owner</label>
+            <input type="text" id="edit-raid-owner" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description / Question</label>
+          <textarea id="edit-raid-desc" class="form-textarea" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Consequence / Rationale</label>
+          <textarea id="edit-raid-consequence" class="form-textarea"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Action or Decision Needed</label>
+          <textarea id="edit-raid-action" class="form-textarea"></textarea>
+        </div>
+
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" id="edit-raid-duedate" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="edit-raid-status" class="form-select">
+              <option value="Open">Open</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Decision Outcome</label>
+            <input type="text" id="edit-raid-outcome" class="form-input" placeholder="e.g. Carry-over selected">
+          </div>
+        </div>
+
+        <!-- 5x5 Probability / Impact Matrix Controls (for Risks) -->
+        <div id="edit-raid-pi-group" class="form-row" style="background:var(--charcoal-50); padding:10px; border-radius:var(--border-radius); border:1px solid var(--charcoal-200);">
+          <div class="form-group">
+            <label>Probability (1 to 5)</label>
+            <input type="number" id="edit-raid-prob" class="form-input" min="1" max="5">
+          </div>
+          <div class="form-group">
+            <label>Impact (1 to 5)</label>
+            <input type="number" id="edit-raid-impact" class="form-input" min="1" max="5">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-edit-raid')">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveRaidModal()">Save RAID Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Milestone Detail Modal -->
+  <div id="modal-milestone-detail" class="modal-backdrop">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>Program Milestone Gate</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('modal-milestone-detail')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div>
+            <h4 id="m-detail-title" style="font-size:18px; color:var(--charcoal-900);"></h4>
+            <span id="m-detail-stage" style="font-size:12px; color:var(--charcoal-500);"></span>
+          </div>
+          <span id="m-detail-id" class="lane-code-pill" style="font-size:13px;"></span>
+        </div>
+
+        <div class="dates-comparison-grid" style="margin-bottom:16px;">
+          <div class="date-box">
+            <span class="date-label">Forecast / Target</span>
+            <span id="m-detail-date" class="date-val"></span>
+          </div>
+          <div class="date-box">
+            <span class="date-label">Original Baseline</span>
+            <span id="m-detail-baseline" class="date-val"></span>
+          </div>
+          <div class="date-box">
+            <span class="date-label">Status</span>
+            <span id="m-detail-status" class="date-val" style="color:var(--status-green);"></span>
+          </div>
+        </div>
+
+        <div style="font-size:13px; margin-bottom:8px;">
+          <strong>Owner:</strong> <span id="m-detail-owner"></span>
+        </div>
+        <div style="font-size:13px; color:var(--charcoal-600); margin-bottom:16px;">
+          <strong>Notes:</strong> <span id="m-detail-notes"></span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-milestone-detail')">Close</button>
+        <button id="m-detail-toggle-achieved" class="btn btn-primary"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Weekly Snapshot Comparison Modal -->
+  <div id="modal-snapshot-comparison" class="modal-backdrop">
+    <div class="modal-window modal-lg">
+      <div class="modal-header">
+        <h3>Weekly Review Snapshot & Comparison</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('modal-snapshot-comparison')">&times;</button>
+      </div>
+      <div id="snapshot-comparison-body" class="modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-snapshot-comparison')">Close</button>
+        <button class="btn btn-primary" onclick="app.closeModal('modal-snapshot-comparison')">Acknowledge Weekly Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Operating Guide Modal -->
+  <div id="modal-operating-guide" class="modal-backdrop">
+    <div class="modal-window modal-lg">
+      <div class="modal-header">
+        <h3>Haulotte PULSAR DTC — Weekly Cockpit Operating Guide</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('modal-operating-guide')">&times;</button>
+      </div>
+      <div class="modal-body" style="font-size:13px; line-height:1.6; color:var(--charcoal-700);">
+        
+        <h4 style="font-size:15px; color:var(--charcoal-900); margin-bottom:6px;">1. Weekly Review Workflow</h4>
+        <p>Every week, start at the <strong>Dashboard</strong> to answer four primary questions:</p>
+        <ul style="padding-left:20px; margin-bottom:12px;">
+          <li><strong>Where are we today?</strong> Check overall progress across the 6 lanes and reporting coverage.</li>
+          <li><strong>What changed since previous review?</strong> Click "Save Weekly Snapshot" to see automated deltas (progress gained, dates shifted, prototypes received).</li>
+          <li><strong>What needs attention?</strong> Review late or blocked items and overdue prototype deliveries.</li>
+          <li><strong>What controls delivery?</strong> Inspect zero-float activities on the critical paths to Mainstream and Steering Serial TR.</li>
+        </ul>
+
+        <h4 style="font-size:15px; color:var(--charcoal-900); margin:14px 0 6px 0;">2. Updating Purchasing & Automatic Roadmap Sync</h4>
+        <p>When prototype dates change in <strong>Purchasing</strong>, the linked Roadmap prototype milestones update automatically so you never enter dates twice. A partial receipt does not mark a gate complete: verify physical receipt and check <em>"Accepted for assembly/test"</em> to clear the gate.</p>
+
+        <h4 style="font-size:15px; color:var(--charcoal-900); margin:14px 0 6px 0;">3. "Must Follow" Dependency Rules</h4>
+        <p>Only connect genuine physical handoffs (design approval before procurement, prototype delivery before assembly/testing, validation closure before technical release). Circular dependencies are rejected automatically by cycle detection algorithms.</p>
+
+        <h4 style="font-size:15px; color:var(--charcoal-900); margin:14px 0 6px 0;">4. Critical Path & Float Interpretation</h4>
+        <p>Activities with <strong>Total Float ≤ 0</strong> are on the critical path. The system explains each with clear notifications such as <em>"A delay here moves Steering delivery."</em> Missing information produces a <strong>Critical path incomplete</strong> diagnostic rather than erroneous scheduling.</p>
+
+        <h4 style="font-size:15px; color:var(--charcoal-900); margin:14px 0 6px 0;">5. Independent Mainstream & Steering Endpoints</h4>
+        <p>Mainstream Serial TR and Steering Serial TR operate independently. Narrow and Wide models share the same planning scope in the Steering lane with dedicated variant checklists, preserving the physical sequence: chassis → pivots → cylinder & steering mechanism → hoses.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="app.closeModal('modal-operating-guide')">Understood</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Missing Inputs Diagnostics Modal -->
+  <div id="modal-missing-inputs" class="modal-backdrop">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>Critical Path Diagnostics — Missing Inputs</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('modal-missing-inputs')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px; color:var(--charcoal-600); margin-bottom:12px;">
+          The Critical Path calculation requires complete start dates, finish dates, and durations. Please address the following missing items:
+        </p>
+        <div id="missing-inputs-list" class="attention-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-missing-inputs')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. User Profile & Storage Mode Modal -->
+  <div id="modal-user-profile" class="modal-backdrop">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>User Session & Shared Workspace Settings</h3>
+        <button class="modal-close-btn" onclick="app.closeModal('modal-user-profile')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Your Name (Logged in user for audit history)</label>
+          <input type="text" id="user-name-input" class="form-input" value="Jean Dupont">
+        </div>
+
+        <div class="form-group">
+          <label>Role</label>
+          <select id="user-role-input" class="form-select">
+            <option value="TPM / Program Manager">TPM / Program Manager</option>
+            <option value="Mechanical Design Lead">Mechanical Design Lead</option>
+            <option value="System & Software Lead">System & Software Lead</option>
+            <option value="Purchasing / Supply Lead">Purchasing / Supply Lead</option>
+            <option value="Validation Lead">Validation Lead</option>
+            <option value="Stakeholder (Reviewer)">Stakeholder (Reviewer)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Workspace Storage Mode</label>
+          <select id="storage-mode-select" class="form-select">
+            <option value="local">Local Mode (Browser Storage - Demo / Standalone)</option>
+            <option value="shared">Shared Mode (Syncs with Internal Server / pulsar_data.json)</option>
+          </select>
+          <span class="form-help">In Shared Mode, run <code>server.ps1</code> to allow colleagues on your internal network to share the same database.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-user-profile')">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveProfileModal()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating CPM Tooltip -->
+  <div id="cpm-tooltip" class="cpm-tooltip"></div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="cpm.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
