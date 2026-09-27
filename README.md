@@ -22,6 +22,11 @@ To share a single persistent database (`pulsar_data.json`) across your engineeri
 2. The server starts on port `8080` (or `http://<machine-ip>:8080/`) and automatically launches your browser.
 3. Any changes made by team members are saved directly to `pulsar_data.json` and synchronized in real time.
 
+### 🌙 Dark Mode / Light Mode
+- Click the **🌙 Dark Mode / ☀️ Light Mode** button in the header toolbar at any time.
+- Preserves the authentic Haulotte brand identity (deep charcoal surfaces, luminous golden yellow `#FFC20E` accents, and crisp contrast).
+- Automatically remembers your preference across browser sessions.
+
 ---
 
 ## 🧭 Application Structure & Pages

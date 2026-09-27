@@ -1541,14 +1541,48 @@
     modal.classList.add('show');
   }
 
+  // ---------------- Theme Management (Dark / Light Mode) ----------------
+
+  function initTheme() {
+    const savedTheme = localStorage.getItem('haulotte_theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+    applyTheme(theme);
+  }
+
+  function applyTheme(theme) {
+    state.theme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('haulotte_theme', theme);
+
+    const icon = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+    if (icon && label) {
+      if (theme === 'dark') {
+        icon.textContent = '☀️';
+        label.textContent = 'Light Mode';
+      } else {
+        icon.textContent = '🌙';
+        label.textContent = 'Dark Mode';
+      }
+    }
+  }
+
+  function toggleTheme() {
+    const nextTheme = state.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(nextTheme);
+  }
+
   // Public Interface for Inline HTML Event Listeners
   window.app = {
     init: function () {
+      initTheme();
       loadState();
       checkServerConnection();
       refreshSchedule();
       setupEventListeners();
     },
+    toggleTheme,
     switchTab,
     openAddActivityModal,
     editActivity,
